@@ -20,7 +20,7 @@ namespace ProjetoFromLuiz
         {
             get
             {
-                return Peso / (Altura * Altura);
+                return Math.Round(Peso / (Altura * Altura), 2);
             }
         }
     }

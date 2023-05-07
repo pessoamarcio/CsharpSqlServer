@@ -95,10 +95,16 @@ namespace ProjetoFromLuiz.Repository
             return pessoasFiltradas;
         }
 
-        public List<Pessoa> FiltrarPessoasPorIMC(double min, double max)
+        public double CalCularIMC(int id)
         {
-            var pessoasFiltradas = baseDePessoas.Where(p => p.IMC >= min && p.IMC <= max).ToList();
-            return pessoasFiltradas;
+            var pessoaIMC = baseDePessoas.FirstOrDefault(p => p.Id == id);
+
+            if (pessoaIMC == null)
+            {
+                throw new Exception("Não encontrada ou não cadastrada!");
+            }
+
+            return pessoaIMC.IMC;
         }
 
     }

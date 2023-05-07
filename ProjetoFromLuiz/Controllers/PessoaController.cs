@@ -11,17 +11,14 @@ namespace ProjetoFromLuiz.Controllers
     [ApiController]
     public class PessoaController : Controller
     {
-        private readonly PessoaService pessoaService;
+        private static PessoaService pessoaService;
         private static PessoaRepository pessoaRepository;
 
-        public PessoaController(PessoaService pessoaService)
-        {
-            this.pessoaService = pessoaService;
-        }
-
+       
         public PessoaController()
         {
             pessoaRepository = new PessoaRepository();
+            pessoaService = new PessoaService();
         }
 
         [HttpPost]
@@ -86,11 +83,12 @@ namespace ProjetoFromLuiz.Controllers
         }
 
         [HttpGet]
-        [Route("api/pessoas/filtro-media-idade/{media}")]
-        public IActionResult FiltrarPessoasPorMediaIdade(int media)
+        [Route("api/pessoas/filtro-media-idade/")]
+        public IActionResult CalcularMediaDeIdade()
         {
-            var pessoasFiltradas = pessoaRepository.FiltrarPessoasPorMediaIdade(media);
-            return Ok(pessoasFiltradas);
+            var mediaPessoas = pessoaRepository.ListarTodos();
+            var media = Math.Round(mediaPessoas.Average(p => p.Idade), 2);
+            return Ok(media);
         }
 
         [HttpGet]
@@ -108,15 +106,7 @@ namespace ProjetoFromLuiz.Controllers
             var pessoasFiltradas = pessoaRepository.FiltrarPessoasPorPeso(min, max);
             return Ok(pessoasFiltradas);
         }
-
-        [HttpGet]
-        [Route("api/pessoas/filtro-imc/{min}/{max}")]
-        public IActionResult FiltrarPessoasPorIMC(double min, double max)
-        {
-            var pessoasFiltradas = pessoaRepository.FiltrarPessoasPorIMC(min, max);
-            return Ok(pessoasFiltradas);
-        }
-
+               
         [HttpGet]
         [Route("api/pessoas/nivel-saude")]
         public IActionResult ListarPessoasComNivelDeSaude()
@@ -131,6 +121,22 @@ namespace ProjetoFromLuiz.Controllers
             }
 
             return Ok(pessoasComSaude);
+        }
+
+        [HttpGet]
+        [Route("api/pessoas/imc/{id}")]
+        public IActionResult CalcularIMCPessoa(int id)
+        {
+            var pessoa = pessoaRepository.ListarPessoaPorId(id);
+            if (pessoa == null)
+            {
+                return NotFound("Pessoa não encontrada!");
+            }
+
+            var imc = pessoa.IMC;
+            var nome = pessoa.Nome;
+            var dadosPessoa = new {nome = nome, IMC = imc};
+            return Ok(dadosPessoa);
         }
 
     }
