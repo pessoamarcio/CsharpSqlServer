@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using ProjetoFromLuiz.Repository;
+using ProjetoFromLuiz.Models;
 
 namespace ProjetoFromLuiz.Services
 {

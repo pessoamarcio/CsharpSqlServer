@@ -1,11 +1,9 @@
+using ProjetoFromLuiz.Data;
+using Microsoft.EntityFrameworkCore;
+using ProjetoFromLuiz.Repository.Interfaces;
+using ProjetoFromLuiz.Repository;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace ProjetoFromLuiz
 {
@@ -13,14 +11,14 @@ namespace ProjetoFromLuiz
     {
         public static void Main(string[] args)
         {
-            CreateHostBuilder(args).Build().Run();
-        }
-
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
+            var host = Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
-                });
+                })
+                .Build();
+
+            host.Run();
+        }
     }
 }

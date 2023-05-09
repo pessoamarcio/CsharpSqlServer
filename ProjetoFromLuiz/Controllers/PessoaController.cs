@@ -5,138 +5,66 @@ using System.Linq;
 using System.Threading.Tasks;
 using ProjetoFromLuiz.Repository;
 using ProjetoFromLuiz.Services;
+using ProjetoFromLuiz.Models;
+using ProjetoFromLuiz.Repository.Interfaces;
+using Microsoft.AspNetCore.Http;
 
-namespace ProjetoFromLuiz.Controllers
+namespace ProjetoFromLuiz.Controllers 
 {
     [ApiController]
-    public class PessoaController : Controller
+    public class PessoaController : ControllerBase
     {
         private static PessoaService pessoaService;
-        private static PessoaRepository pessoaRepository;
+        private readonly IPessoaRepository _pessoaRepository;
 
-       
-        public PessoaController()
+       internal PessoaController(IPessoaRepository pessoaRepository)
         {
-            pessoaRepository = new PessoaRepository();
-            pessoaService = new PessoaService();
+            _pessoaRepository = pessoaRepository;
         }
 
         [HttpPost]
         [Route("api/pessoas")]
-        public IActionResult AdicionarPessoa([FromBody] Pessoa novaPessoa)
+        public async Task<ActionResult<Pessoa>> AdicionarPessoa([FromBody] Pessoa novaPessoa)
         {
-            if (novaPessoa == null)
-            {
-                return BadRequest();
-            }
+            Pessoa pessoa = await _pessoaRepository.AdicionarPessoa(novaPessoa);
 
-            pessoaRepository.AdicionarPessoa(novaPessoa);
-
-            return Ok(novaPessoa);
+            return Ok(pessoa);
         }
 
         [HttpGet]
         [Route("api/pessoas")]
-        public IActionResult ListarTodasPessoas()
+        public async Task<ActionResult<List<Pessoa>>> ListarTodasPessoas()
         {
-            var pessoas = pessoaRepository.ListarTodos();
+            List<Pessoa> pessoas = await _pessoaRepository.ListarTodos();
             return Ok(pessoas);
         }
 
         [HttpGet]
         [Route("api/pessoas/{id}")]
-        public IActionResult ListarPessoasId(int id)
+        public async Task<ActionResult<Pessoa>> ListarPessoasId(int id)
         {
-            var pessoa = pessoaRepository.ListarPessoaPorId(id);
-
-            if (pessoa == null)
-            {
-                return NotFound("Falhou!");
-
-            }
+            Pessoa pessoa = await _pessoaRepository.ListarPessoaPorId(id);
 
             return Ok(pessoa);
         }
 
         [HttpPut]
         [Route("api/pessoas/{id}")]
-        public IActionResult AtualizarPessoas(int id, [FromBody] Pessoa PessoaAtualizada)
+        public async Task<ActionResult<Pessoa>> AtualizarPessoas([FromBody] Pessoa PessoaAtualizada, int id)
         {
-            if (PessoaAtualizada == null)
-            {
-                return BadRequest();
+                       
+            Pessoa pessoa = await _pessoaRepository.AtualizacaoDaPessoa(PessoaAtualizada, id);
 
-            }
-
-            pessoaRepository.AtualizacaoDaPessoa(id, PessoaAtualizada);
-
-            return Ok("Cadastro atualizado com sucesso!");
+            return Ok(pessoa);
         }
 
         [HttpDelete]
         [Route("api/pessoas/{id}")]
-        public IActionResult ExcluirPessoa(int id)
+        public async Task<ActionResult<Pessoa>> ExcluirPessoa(int id)
         {
-            pessoaRepository.ExcluirPessoa(id);
+            bool pessoa = await _pessoaRepository.ExcluirPessoa(id);
 
-            return Ok("Cadastro Deletado!");
-        }
-
-        [HttpGet]
-        [Route("api/pessoas/filtro-media-idade/")]
-        public IActionResult CalcularMediaDeIdade()
-        {
-            var mediaPessoas = pessoaRepository.ListarTodos();
-            var media = Math.Round(mediaPessoas.Average(p => p.Idade), 2);
-            return Ok(media);
-        }
-
-        [HttpGet]
-        [Route("api/pessoas/contar-com-letra-l")]
-        public IActionResult ContarPessoasComLetraL()
-        {
-            var count = pessoaRepository.ContarPessoasComLetraL();
-            return Ok(count);
-        }
-
-        [HttpGet]
-        [Route("api/pessoas/filtro-peso/{min}/{max}")]
-        public IActionResult FiltrarPessoasPorPeso(double min, double max)
-        {
-            var pessoasFiltradas = pessoaRepository.FiltrarPessoasPorPeso(min, max);
-            return Ok(pessoasFiltradas);
-        }
-               
-        [HttpGet]
-        [Route("api/pessoas/nivel-saude")]
-        public IActionResult ListarPessoasComNivelDeSaude()
-        {
-            var pessoas = pessoaRepository.ListarTodos();
-            var pessoasComSaude = new List<dynamic>();
-
-            foreach (var pessoa in pessoas)
-            {
-                var saude = pessoaService.ObterNivelDeSaude(pessoa.IMC);
-                pessoasComSaude.Add(new { pessoa, saude });
-            }
-
-            return Ok(pessoasComSaude);
-        }
-
-        [HttpGet]
-        [Route("api/pessoas/imc/{id}")]
-        public IActionResult CalcularIMCPessoa(int id)
-        {
-            var pessoa = pessoaRepository.ListarPessoaPorId(id);
-            if (pessoa == null)
-            {
-                return NotFound("Pessoa não encontrada!");
-            }
-
-            var imc = pessoa.IMC;
-            var nome = pessoa.Nome;
-            var dadosPessoa = new {nome = nome, IMC = imc};
-            return Ok(dadosPessoa);
+            return Ok(pessoa);
         }
 
     }
